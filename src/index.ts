@@ -78,8 +78,10 @@ Loader.shared.onComplete.add(()=>{
 	character.anchor.set(0.5);
 	/*define posición del sprite en pantalla, al caso al centro via dividir por 2 sus medidas X Y
 	las coordenadas 0,0 serían arriba a la izquierda */
-	character.x = app.screen.width / 2;
-	character.y = app.screen.height - 250;
+	character.x = app.screen.width / 2; //se puede usar .position.set(x,y)
+	character.y = app.screen.height - 225;
+	character.scale.x = 0.9; //se puede usar .scale.set(0.9,0.9) para setear x,y a la vez
+	character.scale.y = 0.9;
 	/*agrega el sprite a la pantalla, no se que sería "stage" []
 	y si el "addChild" tiene que ver con alguna estructura clasica */
 	app.stage.addChild(character);
