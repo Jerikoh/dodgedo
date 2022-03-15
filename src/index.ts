@@ -1,5 +1,5 @@
 //importa las clases? lol no programo hace 4 años
-import { Application, Loader, Sprite } from 'pixi.js'
+import { Application, Container, Loader, Point, Sprite } from 'pixi.js'
 //crea objeto clase Application
 const app = new Application({
 	view: document.getElementById("pixi-canvas") as HTMLCanvasElement,
@@ -52,11 +52,10 @@ no se si es mejor implementarlos al momento de agregarlos o todos al principio
 podré escribir solo "stage2.png"? [] */
 Loader.shared.add({url: "./stage2.png", name: "stage2"});
 Loader.shared.add({url: "./ryu-hq.gif", name: "ryu"});
+Loader.shared.add({url: "./energy-ball.gif", name: "orb"});
 /* esto es para que cuando termine o se carguen esas imgs se ejecute esto
 ni idea cuando se usa esta "funcion flechita" y no "function (){}" */
 Loader.shared.onComplete.add(()=>{
-	//escribo en consola JS
-	console.log("Implementando background...");
 
 	/*fondo
 	entiendo que debería definir mejor el anchor para ubicarlo mas facil
@@ -67,38 +66,50 @@ Loader.shared.onComplete.add(()=>{
 	background.y = 245;
 	app.stage.addChild(background);
 
-	console.log("Implementando character...");
-
 	/*crea objeto tipo sprite (no se por que const y no let)
 	en vez de crear con "new Sprite({" pixi tiene metodo estatico "Sprite.from" */
 	const character: Sprite = Sprite.from("ryu");
 	/*define ancla o punto de referencia en el sprite para manipular posicion
 	lo que no entiendo es que valor es ese 0.5, un eje?
 	por defecto es arriba a la izquierda */
-	character.anchor.set(0.5);
-	/*define posición del sprite en pantalla, al caso al centro via dividir por 2 sus medidas X Y
-	las coordenadas 0,0 serían arriba a la izquierda */
-	character.x = app.screen.width / 2; //se puede usar .position.set(x,y)
-	character.y = app.screen.height - 225;
-	character.scale.x = 0.9; //se puede usar .scale.set(0.9,0.9) para setear x,y a la vez
-	character.scale.y = 0.9;
-	/*agrega el sprite a la pantalla, no se que sería "stage" []
-	y si el "addChild" tiene que ver con alguna estructura clasica */
-	app.stage.addChild(character);
-	
-	console.log("Todos los sprites implementados.");
-	console.log("Background",background.width,"x",background.height);
-	console.log("Character",character.width,"x",character.height);
-	/*tira que sus dimensiones son 1x1, porque todavía no se cargó la imagen
-	para hacer que consulte un sprite cargado, usamos un loader (clase de pixi)
-	usando su nombre en lugar de una URL al crear un sprite lograremos el cometido
-	no se que es una "referencia" de Loader cuando habla de .shared
-	se puede crear un loader no compartido (no se en que casos convendría)
-	algunas ventajas de usar el loader:
-	- usamos el nombre del elemento en vez de su dirección URL
-	- evitamos tener que escribir toda una url (lol idem) */
-});
 
-/*asi inicio el Loader y su efecto "onComplete"
+	/*estoy creando un "accesorio" del personaje en un mismo plano
+	por eso defino el personaje en dimensiones por defecto
+	y ajusto el accesorio a este, para luego manipular ambos juntos como containers */
+	const orb: Sprite = Sprite.from("orb");
+	orb.position.set(-60,-80);
+
+	//creo el container del personaje con el accesorio
+	const characterAcc: Container = new Container();
+	//agrego al container los sprites en orden
+	characterAcc.addChild(character);
+	characterAcc.addChild(orb);
+	//agrega el container a la pantalla
+	app.stage.addChild(characterAcc);
+	//ahora transformo y posiciono el container
+	characterAcc.scale.set(0.9,0.9);
+	characterAcc.position.set((app.screen.width/2.5),(app.screen.height/2.6));
+
+	/*si quiero saber la posicion en pantalla del gorro, no puedo simplemente pedirsela
+	porque me va a dar la posicion LOCAL y no GLOBAL
+	es mas facil pedirla asi: */
+	orb.toGlobal(new Point()); //"orbe, decime donde queda tu origen en la pantalla"
+	//esta es otra forma; "padre del gorro, decime donde queda en pantalla -mundo global- la posicion del orbe"
+	orb.parent.toGlobal(orb.position);
+
+	/*si quiero, por ej, poner el orbe en el medio de la pantalla...
+	"padre del orbe, como seria en tu universo local esta posicion en el universo global?" */
+	orb.parent.toLocal(new Point(640,360));
+	
+	/*lo anterior me devuelve un punto, que puedo guardar para luego señalar nueva ubicacion desde referencia global
+	cont punto = orb.parent.toLocal(new Point(640,360));
+	//recordemos que estamos cambiando la posicion local del orbe, pero coincidiendo con la posicion global deseada
+	hat.position.x =punto.x;
+	hat.position.y =punto.y;
+	*/
+
+});	
+
+/*asi inicio el Loader y su efecto o evento "onComplete"
 tiene que ir todo dentro del loader? */
 Loader.shared.load();
