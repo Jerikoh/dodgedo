@@ -1,5 +1,7 @@
 //importa las clases? lol no programo hace 4 años
-import { Application, Container, Loader, Point, Sprite } from 'pixi.js'
+import { Application, Loader } from 'pixi.js'
+import { assets } from './assets';
+import { Scene } from './Scene';
 //crea objeto clase Application
 const app = new Application({
 	view: document.getElementById("pixi-canvas") as HTMLCanvasElement,
@@ -50,64 +52,13 @@ window.dispatchEvent(new Event("resize"));
 /*implemento loaders, mas abajo dice proposito
 no se si es mejor implementarlos al momento de agregarlos o todos al principio
 podré escribir solo "stage2.png"? [] */
-Loader.shared.add({url: "./stage2.png", name: "stage2"});
-Loader.shared.add({url: "./ryu-hq.gif", name: "ryu"});
-Loader.shared.add({url: "./energy-ball.gif", name: "orb"});
+Loader.shared.add(assets);
 /* esto es para que cuando termine o se carguen esas imgs se ejecute esto
 ni idea cuando se usa esta "funcion flechita" y no "function (){}" */
 Loader.shared.onComplete.add(()=>{
-
-	/*fondo
-	entiendo que debería definir mejor el anchor para ubicarlo mas facil
-	ni se si hay un método para definir fondos [] */
-	const background: Sprite = Sprite.from("stage2");
-	background.anchor.set(0.5);
-	background.x = 400;
-	background.y = 245;
-	app.stage.addChild(background);
-
-	/*crea objeto tipo sprite (no se por que const y no let)
-	en vez de crear con "new Sprite({" pixi tiene metodo estatico "Sprite.from" */
-	const character: Sprite = Sprite.from("ryu");
-	/*define ancla o punto de referencia en el sprite para manipular posicion
-	lo que no entiendo es que valor es ese 0.5, un eje?
-	por defecto es arriba a la izquierda */
-
-	/*estoy creando un "accesorio" del personaje en un mismo plano
-	por eso defino el personaje en dimensiones por defecto
-	y ajusto el accesorio a este, para luego manipular ambos juntos como containers */
-	const orb: Sprite = Sprite.from("orb");
-	orb.position.set(-60,-80);
-
-	//creo el container del personaje con el accesorio
-	const characterAcc: Container = new Container();
-	//agrego al container los sprites en orden
-	characterAcc.addChild(character);
-	characterAcc.addChild(orb);
-	//agrega el container a la pantalla
-	app.stage.addChild(characterAcc);
-	//ahora transformo y posiciono el container
-	characterAcc.scale.set(0.9,0.9);
-	characterAcc.position.set((app.screen.width/2.5),(app.screen.height/2.6));
-
-	/*si quiero saber la posicion en pantalla del gorro, no puedo simplemente pedirsela
-	porque me va a dar la posicion LOCAL y no GLOBAL
-	es mas facil pedirla asi: */
-	orb.toGlobal(new Point()); //"orbe, decime donde queda tu origen en la pantalla"
-	//esta es otra forma; "padre del gorro, decime donde queda en pantalla -mundo global- la posicion del orbe"
-	orb.parent.toGlobal(orb.position);
-
-	/*si quiero, por ej, poner el orbe en el medio de la pantalla...
-	"padre del orbe, como seria en tu universo local esta posicion en el universo global?" */
-	orb.parent.toLocal(new Point(640,360));
-	
-	/*lo anterior me devuelve un punto, que puedo guardar para luego señalar nueva ubicacion desde referencia global
-	cont punto = orb.parent.toLocal(new Point(640,360));
-	//recordemos que estamos cambiando la posicion local del orbe, pero coincidiendo con la posicion global deseada
-	hat.position.x =punto.x;
-	hat.position.y =punto.y;
-	*/
-
+	//creo el objeto clase scene y lo dispongo en pantalla
+	const sceneyep = new Scene();
+	app.stage.addChild(sceneyep);
 });	
 
 /*asi inicio el Loader y su efecto o evento "onComplete"
